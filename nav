@@ -1,0 +1,18 @@
+#!/usr/bin/env fish
+
+set CSV_FILE "$HOME/.config/nav/repo_paths.csv"
+set PYTHON_PROGRAM "$HOME/.config/nav/nav.py"
+
+if test "$argv[1]" = --index
+    python3 "$PYTHON_PROGRAM"
+else
+    set selected_path (awk -F',' '{print $1}' "$CSV_FILE" | fzf | read -l selected_query; awk -v query="$selected_query" -F',' '$1 == query {gsub(/\r/,"",$2); print $2}' "$CSV_FILE")
+    if test -n "$selected_path"
+        set clean_path (string trim -- "$selected_path")
+        if test -d "$clean_path"
+            cd "$clean_path"
+        else
+            echo "Error: Directory does not exist: $clean_path"
+        end
+    end
+end
